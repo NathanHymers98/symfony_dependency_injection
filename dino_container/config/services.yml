@@ -1,0 +1,29 @@
+# WE can also add parameters in YAML
+# Below I am creating a new parameter and setting it's value to a message saying that the Logger has just started
+# By doing this I can call this parameter in this file with %'s and it will display whatever the parameter is set to, which in this case is the message
+parameters:
+    logger_startup_message: 'Logger just got started!!!'
+
+# Training the container on how to create the logger service
+# All the code below is creating the logger service and the definitions so that when we want to use this in a php file
+# We just have to load the container, set the parameter and load the YAML file
+# Every service will atleast have two parts which is the class and arguments sections
+# To use a defined parameter in YAML but the parameter name inbetween %'s For example %root_dir%
+services:
+    logger:
+        class: Monolog\Logger
+        arguments:
+            - 'main'
+            - ['@logger.stream_handler']
+        calls:
+            - ['pushHandler', ['@logger.std_out_handler']]
+            - ['debug', ['%logger_startup_message%']]
+
+    logger.stream_handler:
+        class: Monolog\Handler\StreamHandler
+        arguments: ['%root_dir%/dino.log']
+
+    logger.std_out_handler:
+        class: Monolog\Handler\StreamHandler
+        arguments: ['php://stdout']
+
